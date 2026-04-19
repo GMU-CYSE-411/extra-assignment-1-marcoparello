@@ -1,5 +1,6 @@
 async function loadSettings(userId) {
-  const result = await api(`/api/settings?userId=${encodeURIComponent(userId)}`);
+  //cleint should not be able to control the settings of another user, therefore, remove encodeURIComponet(userID)
+  const result = await api(`/api/settings`);
   const settings = result.settings;
 
   document.getElementById("settings-form-user-id").value = settings.userId;
@@ -10,10 +11,30 @@ async function loadSettings(userId) {
   form.elements.theme.value = settings.theme;
   form.elements.statusMessage.value = settings.statusMessage;
   form.elements.emailOptIn.checked = Boolean(settings.emailOptIn);
-  document.getElementById("status-preview").innerHTML = `
-    <p><strong>${settings.displayName}</strong></p>
-    <p>${settings.statusMessage}</p>
-  `;
+  //Vulnerability! InnerHTML without escaping. Attackers can input html code
+  //document.getElementById("status-preview").innerHTML = `
+   // <p><strong>${settings.displayName}</strong></p>
+   // <p>${settings.statusMessage}</p>
+ // `;
+
+ //Fix
+
+ //clear innerHTML
+ const status_preview = document.getElementById("status-preview");
+ status_preview.innerHTML = "";
+
+
+ //generate template using textContent
+  const displayNameP = document.createElement("p");
+  const displayNameStrong = document.createElement("strong");
+  const statusMessageP = document.createElement("p");
+  displayNameStrong.textContent = settings.displayName;
+  displayNameP.appendChild(displayNameStrong);
+  statusMessageP.textContent = settings.statusMessage;
+
+  //append to status_preview
+  status_preview.appendChild(displayNameP);
+  status_preview.appendChild(statusMessageP);
 
   writeJson("settings-output", settings);
 }

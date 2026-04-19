@@ -1,6 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 const { DEFAULT_DB_FILE, openDatabase } = require("./db");
+// require bcrypt for hashing
+const bcrypt = require("bcrypt")
 
 async function initializeDatabase() {
   const analysisDir = path.dirname(DEFAULT_DB_FILE);
@@ -53,19 +55,24 @@ async function initializeDatabase() {
     )
   `);
 
+// direct storage of passwords in plaintext, not secure   
+// fix with password hash using bcrypt
+const admin = await bcrypt.hash("admin123", 10);
+const alice = await bcrypt.hash("wonderland", 10);
+const bob   = await bcrypt.hash("builder", 10);
   await db.run(
     "INSERT INTO users (username, password, role, display_name) VALUES (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?)",
     [
       "admin",
-      "admin123",
+      admin,
       "admin",
       "Administrator",
       "alice",
-      "wonderland",
+      alice,
       "student",
       "Alice Analyst",
       "bob",
-      "builder",
+      bob,
       "student",
       "Bob Builder"
     ]

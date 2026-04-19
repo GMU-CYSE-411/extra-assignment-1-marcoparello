@@ -1,12 +1,24 @@
 async function api(path, options = {}) {
-  const response = await fetch(path, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {})
+  //Vulnerability! CSP should not be changable from the options
+  //Also the user should not be able to input the method
+  //Fixed
+  //METHOD should only be GET or POST
+  // GET should not have the ability to change the body
+  if (options.method == "GET"){
+    const csp= {
+    method: "GET",
+    headers:{
+      "Content-Type": "application/json"
     },
-    credentials: "same-origin",
-    ...options
-  });
+    credentials: "same-origin"
+
+  };
+}
+  //only if the method is POST is changing the body possible
+  if (options.method == "POST"){
+    csp.body == JSON.stringify(options.body || {});
+  }
+  const response = await fetch(path, csp);
 
   const isJson = (response.headers.get("content-type") || "").includes("application/json");
   const body = isJson ? await response.json() : await response.text();
