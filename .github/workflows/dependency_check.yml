@@ -15,7 +15,7 @@ jobs:
       uses: dependency-check/Dependency-Check_Action@main
       with:
         project: app.js
-        path: ./extra-assignment-1/server/app.js
+        path: ./server/app.js
         format: HTML
 
     - name: Upload Report
